@@ -224,7 +224,13 @@ class ProjectInfo:
         self.use_namespace = len(self.root.nsmap) > 0
 
     def save(self):
-        self.document.write(f"{self.proj_file_path}_conv2", pretty_print=True, encoding="utf-8")
+        indx = 0
+        backup_path = f"{self.proj_file_path}.bak"
+        while(os.path.exists(backup_path)):            
+            indx += 1
+            backup_path = f"{self.proj_file_path}.bak{indx}"
+        os.rename(self.proj_file_path, backup_path)
+        self.document.write(self.proj_file_path, pretty_print=True, encoding="utf-8")
 
     def is_android(self):
         nodes = self.document.xpath("//ns:Import[contains(@Project, 'Xamarin.Android.CSharp.targets')]", namespaces=self.msbuild_namespaces)

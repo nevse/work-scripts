@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="devtools-pkg",
-    version="0.0.1",
+    version="0.0.2",
     author="EN",
     author_email="nevse@gmail.com",
     description="devtools-pkg",
