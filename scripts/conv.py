@@ -436,14 +436,14 @@ class ProjectInfo:
             if platform == "":
                 content_node = package_ref_nodes[0].getparent()
             else:
-                content_node = next(x.getparent() for x in package_ref_nodes if self.check_condition(x.getparent(), condition))
+                content_node = next((x.getparent() for x in package_ref_nodes if self.check_condition(x.getparent(), condition)), None)
         
         if content_node == None:
             project_node = self.get_project_node()
             content_node = lxml.etree.Element("ItemGroup")
             if (platform != ""):
                 content_node.attrib["Condition"] = condition
-            project_node.add(content_node)
+            project_node.append(content_node)
                         
         package_node = lxml.etree.Element("PackageReference")
         content_node.append(package_node)
