@@ -70,7 +70,7 @@ maui_hint_path_info={
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.CollectionView.dll"            
     },
     "DevExpress.Xamarin.Android.CollectionView":"xamarin\Binaries\DevExpress.Xamarin.Android.CollectionView.dll",
-    "DevExpress.Xamarin.iOS.CollectionView":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Xamarin.iOS.CollectionView.dll",
+    "DevExpress.Maui.iOS.CollectionView":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.CollectionView.dll",
     "DevExpress.Maui.Editors":{
         "android":"xamarin\Binaries\Android\DevExpress.Maui.Editors.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Editors.dll"
@@ -114,7 +114,7 @@ maui_packages_info={
             "DevExpress.Xamarin.Android.CollectionView"
         ],
         "ios":[ 
-            "DevExpress.Xamarin.iOS.CollectionView"
+            "DevExpress.Maui.iOS.CollectionView"
         ]
     },
     "DevExpress.Maui.Editors": {
@@ -128,7 +128,7 @@ maui_packages_info={
             "DevExpress.Xamarin.Android.Editors"
         ],
         "ios":[ 
-            "DevExpress.Xamarin.iOS.CollectionView",
+            "DevExpress.Maui.iOS.CollectionView",
             "DevExpress.Maui.iOS.Editors"
         ]
     },
@@ -145,7 +145,7 @@ maui_packages_info={
             "DevExpress.Xamarin.Android.Grid"
         ],
         "ios":[ 
-            "DevExpress.Xamarin.iOS.CollectionView",
+            "DevExpress.Maui.iOS.CollectionView",
             "DevExpress.Maui.iOS.Editors",
             "DevExpress.Maui.iOS.Grid"
         ]
