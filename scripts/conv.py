@@ -53,7 +53,7 @@ def main():
         (android_references, ios_references, packages_to_remove) = find_maui_references_to_process(packages)
         if maui_project.has_maui_android_platform():
             maui_project.add_references(android_references, repo_path=repo_path, platform="android")
-            maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.5.31.2", "android")
+            maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.4.32.1", "android")
         if maui_project.has_maui_ios_platform():
             maui_project.add_references(ios_references, repo_path=repo_path, platform="ios")        
         maui_project.remove_package_references(packages_to_remove)
@@ -62,7 +62,7 @@ def main():
 
 maui_hint_path_info={
     "DevExpress.Maui.Core":{
-        "android":"xamarin\Binaries\Android\DevExpress.Maui.CollectionView.dll",
+        "android":"xamarin\Binaries\Android\DevExpress.Maui.Core.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Core.dll"
     },
     "DevExpress.Maui.CollectionView":{
@@ -70,7 +70,7 @@ maui_hint_path_info={
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.CollectionView.dll"            
     },
     "DevExpress.Xamarin.Android.CollectionView":"xamarin\Binaries\DevExpress.Xamarin.Android.CollectionView.dll",
-    "DevExpress.Xamarin.iOS.CollectionView":"xamarin\Binaries\DevExpress.Xamarin.iOS.CollectionView.dll",
+    "DevExpress.Xamarin.iOS.CollectionView":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Xamarin.iOS.CollectionView.dll",
     "DevExpress.Maui.Editors":{
         "android":"xamarin\Binaries\Android\DevExpress.Maui.Editors.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Editors.dll"
@@ -303,16 +303,6 @@ xamarin_packages_info={
 
 
 hint_path_info={
-    # maui
-    "DevExpress.Maui.Core":{
-        "android":"xamarin\Binaries\Android\DevExpress.Maui.CollectionView.dll",
-        "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Core.dll"
-    },
-    "DevExpress.Maui.CollectionView":{
-        "android":"xamarin\Binaries\Android\DevExpress.Maui.CollectionView.dll",
-        "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.CollectionView.dll"            
-    },
-    # xamarin
     "DevExpress.XamarinForms.Core":"xamarin\Binaries\DevExpress.XamarinForms.Core.dll",
     "DevExpress.XamarinForms.Editors":"xamarin\Binaries\DevExpress.XamarinForms.Editors.dll",
     "DevExpress.XamarinForms.CollectionView":"xamarin\Binaries\DevExpress.XamarinForms.CollectionView.dll",
@@ -448,7 +438,7 @@ class ProjectInfo:
         package_node = lxml.etree.Element("PackageReference")
         content_node.append(package_node)
         package_node.attrib["Include"] = package
-        version_node = lxml.etree.SubElement(package_node, "HintPath")
+        version_node = lxml.etree.SubElement(package_node, "Version")
         version_node.text = version
         print(f"Add package {package}")
 
@@ -561,7 +551,9 @@ def find_maui_references_to_process(packages):
     for package in packages:
         package_was_processed = False
         package_info = maui_packages_info.get(package)
-        
+        if package_info == None:
+            print(f"Skip package {package}")
+            continue
         refs = package_info.get("common")
         if len(refs) != 0:
             package_was_processed = True
@@ -584,7 +576,7 @@ def find_maui_references_to_process(packages):
         if package_was_processed:
             packages_to_remove.add(package)
         else:
-            print(f"Skiip package {package}")
+            print(f"Skip package {package}")
         
     return (android_references, ios_references, packages_to_remove)
 
