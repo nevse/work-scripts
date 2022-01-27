@@ -87,6 +87,12 @@ maui_hint_path_info={
         "android":"xamarin\Binaries\Android\DevExpress.Maui.Navigation.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Navigation.dll"
     },
+    "DevExpress.Maui.Scheduler":{
+        "android":"xamarin\Binaries\Android\DevExpress.Maui.Navigation.dll",
+        "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Scheduler.dll"
+    },
+    "DevExpress.Xamarin.Android.Scheduler":"xamarin\Binaries\DevExpress.Xamarin.Android.Scheduler.dll",
+    "DevExpress.Maui.iOS.Scheduler":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.Scheduler.dll",
     "DevExpress.Xamarin.Android.Navigation":"xamarin\Binaries\DevExpress.Xamarin.Android.Navigation.dll",
     "DevExpress.Maui.iOS.Navigation":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.Navigation.dll",
     "DevExpress.Maui.Charts":{
@@ -160,6 +166,24 @@ maui_packages_info={
         ],
         "ios":[
             "DevExpress.Maui.iOS.Navigation"
+        ]
+    },
+    "DevExpress.Maui.Scheduler":{
+        "common":[
+            "DevExpress.Maui.Core",
+            "DevExpress.Maui.CollectionView",
+            "DevExpress.Maui.Editors",
+            "DevExpress.Maui.Scheduler"
+        ],
+        "android":[ 
+            "DevExpress.Xamarin.Android.CollectionView",
+            "DevExpress.Xamarin.Android.Editors",
+            "DevExpress.Xamarin.Android.Scheduler"
+        ],
+        "ios":[ 
+            "DevExpress.Maui.iOS.CollectionView",
+            "DevExpress.Maui.iOS.Editors",
+            "DevExpress.Maui.iOS.Scheduler"
         ]
     },
     "DevExpress.Maui.Charts":{
