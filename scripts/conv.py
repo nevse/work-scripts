@@ -34,7 +34,7 @@ def main():
 
         #patch android project
         if (android_project != None):
-            print(f"Process android project {xamarin_project.proj_file_path}")
+            print(f"Process android project {android_project.proj_file_path}")
             (refs, packages_to_remove) = find_references_to_process(packages, "android")
             android_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.5.31.2")
             android_project.add_references(refs, repo_path)
@@ -42,7 +42,7 @@ def main():
 
         #patch ios project
         if (ios_project != None):
-            print(f"Process ios project {xamarin_project.proj_file_path}")
+            print(f"Process ios project {ios_project.proj_file_path}")
             (refs, packages_to_remove) = find_references_to_process(packages, "ios")
             ios_project.add_references(refs, repo_path)
             ios_project.save()
@@ -88,7 +88,7 @@ maui_hint_path_info={
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Navigation.dll"
     },
     "DevExpress.Maui.Scheduler":{
-        "android":"xamarin\Binaries\Android\DevExpress.Maui.Navigation.dll",
+        "android":"xamarin\Binaries\Android\DevExpress.Maui.Scheduler.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Scheduler.dll"
     },
     "DevExpress.Xamarin.Android.Scheduler":"xamarin\Binaries\DevExpress.Xamarin.Android.Scheduler.dll",
