@@ -409,11 +409,17 @@ class ProjectInfo:
 
     def has_maui_android_platform(self):
         nodes = self.document.xpath("//PropertyGroup//TargetFrameworks")
-        return len(nodes) == 1 and "net6.0-android" in nodes[0].text.lower()
+        for node in nodes:
+            if "net6.0-android" in node.text.lower():
+                return True
+        return False
     
     def has_maui_ios_platform(self):
         nodes = self.document.xpath("//PropertyGroup//TargetFrameworks")
-        return len(nodes) == 1 and "net6.0-ios" in nodes[0].text.lower()
+        for node in nodes:
+            if "net6.0-ios" in node.text.lower():
+                return True
+        return False
 
     def is_android(self):
         nodes = self.document.xpath("//ns:Import[contains(@Project, 'Xamarin.Android.CSharp.targets')]", namespaces=self.msbuild_namespaces)
