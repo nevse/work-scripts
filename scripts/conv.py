@@ -53,7 +53,7 @@ def main():
         (android_references, ios_references, packages_to_remove) = find_maui_references_to_process(packages)
         if maui_project.has_maui_android_platform():
             maui_project.add_references(android_references, repo_path=repo_path, platform="android")
-            maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.4.32.1", "android")
+            maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.10", "android")
         if maui_project.has_maui_ios_platform():
             maui_project.add_references(ios_references, repo_path=repo_path, platform="ios")        
         maui_project.remove_package_references(packages_to_remove)
@@ -69,19 +69,19 @@ maui_hint_path_info={
         "android":"xamarin\Binaries\Android\DevExpress.Maui.CollectionView.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.CollectionView.dll"            
     },
-    "DevExpress.Xamarin.Android.CollectionView":"xamarin\Binaries\DevExpress.Xamarin.Android.CollectionView.dll",
+    "DevExpress.Maui.Android.CollectionView":"xamarin\Binaries\Android\DevExpress.Maui.Android.CollectionView.dll",
     "DevExpress.Maui.iOS.CollectionView":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.CollectionView.dll",
     "DevExpress.Maui.Editors":{
         "android":"xamarin\Binaries\Android\DevExpress.Maui.Editors.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Editors.dll"
     },
-    "DevExpress.Xamarin.Android.Editors":"xamarin\Binaries\Android\DevExpress.Xamarin.Android.Editors.dll",
+    "DevExpress.Maui.Android.Editors":"xamarin\Binaries\Android\DevExpress.Maui.Android.Editors.dll",
     "DevExpress.Maui.iOS.Editors":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.Editors.dll",
     "DevExpress.Maui.DataGrid":{
         "android":"xamarin\Binaries\Android\DevExpress.Maui.DataGrid.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.DataGrid.dll"
     },
-    "DevExpress.Xamarin.Android.Grid":"xamarin\Binaries\DevExpress.Xamarin.Android.Grid.dll",
+    "DevExpress.Maui.Android.Grid":"xamarin\Binaries\Android\DevExpress.Maui.Android.Grid.dll",
     "DevExpress.Maui.iOS.Grid":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.Grid.dll",
     "DevExpress.Maui.Navigation":{
         "android":"xamarin\Binaries\Android\DevExpress.Maui.Navigation.dll",
@@ -91,16 +91,20 @@ maui_hint_path_info={
         "android":"xamarin\Binaries\Android\DevExpress.Maui.Scheduler.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Scheduler.dll"
     },
-    "DevExpress.Xamarin.Android.Scheduler":"xamarin\Binaries\DevExpress.Xamarin.Android.Scheduler.dll",
+    "DevExpress.Maui.Android.Scheduler":"xamarin\Binaries\Android\DevExpress.Maui.Android.Scheduler.dll",
     "DevExpress.Maui.iOS.Scheduler":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.Scheduler.dll",
-    "DevExpress.Xamarin.Android.Navigation":"xamarin\Binaries\DevExpress.Xamarin.Android.Navigation.dll",
+    "DevExpress.Maui.Android.Navigation":"xamarin\Binaries\Android\DevExpress.Maui.Android.Navigation.dll",
     "DevExpress.Maui.iOS.Navigation":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.Navigation.dll",
     "DevExpress.Maui.Charts":{
          "android":"xamarin\Binaries\Android\DevExpress.Maui.Charts.dll",
         "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Charts.dll"
     },
-    "DevExpress.Maui.Android.Charts":"xamarin\Binaries\Android\DevExpress.Xamarin.Android.Charts.dll",
-    "DevExpress.Xamarin.iOS.Charts":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Xamarin.iOS.Charts.dll"
+    "DevExpress.Maui.Android.Charts":"xamarin\Binaries\Android\DevExpress.Maui.Android.Charts.dll",
+    "DevExpress.Maui.iOS.Charts":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.iOS.Charts.dll",
+    "DevExpress.Maui.Controls":{
+        "android":"xamarin\Binaries\Android\DevExpress.Maui.Controls.dll",
+        "ios":"xamarin\Binaries\iOS\iossimulator-x64\DevExpress.Maui.Controls.dll"
+    }
 }
 
 maui_packages_info={
@@ -117,7 +121,7 @@ maui_packages_info={
             "DevExpress.Maui.CollectionView"
         ],
         "android":[ 
-            "DevExpress.Xamarin.Android.CollectionView"
+            "DevExpress.Maui.Android.CollectionView"
         ],
         "ios":[ 
             "DevExpress.Maui.iOS.CollectionView"
@@ -127,63 +131,74 @@ maui_packages_info={
         "common":[
             "DevExpress.Maui.Core",
             "DevExpress.Maui.CollectionView",
-            "DevExpress.Maui.Editors"
+            "DevExpress.Maui.Editors",
+            "DevExpress.Maui.Controls"
         ],
         "android":[ 
-            "DevExpress.Xamarin.Android.CollectionView",
-            "DevExpress.Xamarin.Android.Editors"
+            "DevExpress.Maui.Android.CollectionView",
+            "DevExpress.Maui.Android.Editors",
+            "DevExpress.Maui.Android.Navigation"
         ],
         "ios":[ 
             "DevExpress.Maui.iOS.CollectionView",
-            "DevExpress.Maui.iOS.Editors"
+            "DevExpress.Maui.iOS.Editors",
+            "DevExpress.Maui.iOS.Navigation"
         ]
     },
     "DevExpress.Maui.DataGrid":{
         "common":[
             "DevExpress.Maui.Core",
+            "DevExpress.Maui.Controls",
             "DevExpress.Maui.CollectionView",
             "DevExpress.Maui.Editors",
             "DevExpress.Maui.DataGrid",
         ],
         "android":[ 
-            "DevExpress.Xamarin.Android.CollectionView",
-            "DevExpress.Xamarin.Android.Editors",
-            "DevExpress.Xamarin.Android.Grid"
+            "DevExpress.Maui.Android.CollectionView",
+            "DevExpress.Maui.Android.Editors",
+            "DevExpress.Maui.Android.Grid",
+            "DevExpress.Maui.Android.Navigation"
         ],
         "ios":[ 
             "DevExpress.Maui.iOS.CollectionView",
             "DevExpress.Maui.iOS.Editors",
-            "DevExpress.Maui.iOS.Grid"
+            "DevExpress.Maui.iOS.Grid",
+            "DevExpress.Maui.iOS.Navigation"
         ]
     },
-    "DevExpress.Maui.Navigation":{
+    "DevExpress.Maui.Controls":{
         "common":[
             "DevExpress.Maui.Core",
-            "DevExpress.Maui.Navigation"
+            "DevExpress.Maui.Controls"
         ],
         "android":[
-            "DevExpress.Xamarin.Android.Navigation"
+            "DevExpress.Maui.Android.Navigation",
+            "DevExpress.Maui.Android.Editors"
         ],
         "ios":[
-            "DevExpress.Maui.iOS.Navigation"
+            "DevExpress.Maui.iOS.Navigation",
+            "DevExpress.Maui.iOS.Editors"
         ]
     },
     "DevExpress.Maui.Scheduler":{
         "common":[
             "DevExpress.Maui.Core",
+            "DevExpress.Maui.Controls",
             "DevExpress.Maui.CollectionView",
             "DevExpress.Maui.Editors",
             "DevExpress.Maui.Scheduler"
         ],
         "android":[ 
-            "DevExpress.Xamarin.Android.CollectionView",
-            "DevExpress.Xamarin.Android.Editors",
-            "DevExpress.Xamarin.Android.Scheduler"
+            "DevExpress.Maui.Android.CollectionView",
+            "DevExpress.Maui.Android.Editors",
+            "DevExpress.Maui.Android.Scheduler",
+            "DevExpress.Maui.Android.Navigation"
         ],
         "ios":[ 
             "DevExpress.Maui.iOS.CollectionView",
             "DevExpress.Maui.iOS.Editors",
-            "DevExpress.Maui.iOS.Scheduler"
+            "DevExpress.Maui.iOS.Scheduler",
+            "DevExpress.Maui.iOS.Navigation"
         ]
     },
     "DevExpress.Maui.Charts":{
@@ -195,7 +210,7 @@ maui_packages_info={
             "DevExpress.Maui.Android.Charts"
          ],
         "ios":[
-            "DevExpress.Xamarin.iOS.Charts"
+            "DevExpress.Maui.iOS.Charts"
          ]
     }
 }
