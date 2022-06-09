@@ -1,11 +1,12 @@
 import setuptools
 
 setuptools.setup(
-    name="devtools-pkg",
-    version="0.0.4",
+    name="project-conv-nevse",
+    version="0.0.7",    
     author="EN",
     author_email="nevse@gmail.com",
-    description="devtools-pkg",
+    description="csrpoj packagereference converter",
+    long_description_content_type='text/markdown',
     url="https://github.com/nevse/work-scripts",
     project_urls={
         "Bug Tracker": "https://github.com/nevse/work-scripts/issues",
@@ -15,6 +16,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages(where="scripts"),
-    python_requires=">=3.6",
-    scripts=["scripts/conv", "scripts/conv.py"]
+    python_requires=">=3.6",    
+    entry_points={
+        'console_scripts': [
+            'conv=conv:main',
+        ],
+    }    
 )
