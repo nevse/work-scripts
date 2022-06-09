@@ -7,7 +7,7 @@ pip3 install -i https://test.pypi.org/simple/ project-conv-nevse
 
 To update package use this command
 ```
-pip3 install project-conv-nevse -U
+pip3 install --upgrade -i https://test.pypi.org/simple/ project-conv-nevse
 ```
 
 ## How to use
