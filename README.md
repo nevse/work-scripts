@@ -1,5 +1,7 @@
 # work-scripts
 
+Release can be found here https://test.pypi.org/project/project-conv-nevse/
+
 ## Install csrpoj packagereference converter
 ```
 pip3 install -i https://test.pypi.org/simple/ project-conv-nevse
