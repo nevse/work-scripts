@@ -38,6 +38,7 @@ def main():
             (refs, packages_to_remove) = find_references_to_process(packages, "android")
             android_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.5.31.2")
             android_project.add_references(refs, repo_path)
+            android_project.remove_package_references(packages_to_remove)
             android_project.save()
 
         #patch ios project
@@ -45,6 +46,7 @@ def main():
             print(f"Process ios project {ios_project.proj_file_path}")
             (refs, packages_to_remove) = find_references_to_process(packages, "ios")
             ios_project.add_references(refs, repo_path)
+            ios_project.remove_package_references(packages_to_remove)
             ios_project.save()
     
     if (maui_project != None):
