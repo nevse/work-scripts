@@ -296,6 +296,7 @@ xamarin_packages_info={
         "ios":[
             "DevExpress.XamarinForms.Core.iOS",
             "DevExpress.Xamarin.iOS.Grid",
+            "DevExpress.XamarinForms.Grid.iOS",
             "DevExpress.XamarinForms.Editors.iOS",
             "DevExpress.Xamarin.iOS.Editors",
             "DevExpress.Xamarin.iOS.CollectionView",
@@ -371,6 +372,7 @@ hint_path_info={
     "DevExpress.Xamarin.Android.Grid":"xamarin\Binaries\DevExpress.Xamarin.Android.Grid.dll",
     "DevExpress.XamarinForms.Grid.Android":"xamarin\Binaries\DevExpress.XamarinForms.Grid.Android.dll",
     "DevExpress.Xamarin.iOS.Grid":"xamarin\Binaries\DevExpress.Xamarin.iOS.Grid.dll",
+    "DevExpress.XamarinForms.Grid.iOS":"xamarin\Binaries\DevExpress.XamarinForms.Grid.iOS.dll",
     "DevExpress.XamarinForms.Navigation":"xamarin\Binaries\DevExpress.XamarinForms.Navigation.dll",
     "DevExpress.Xamarin.Android.Navigation":"xamarin\Binaries\DevExpress.Xamarin.Android.Navigation.dll",
     "DevExpress.XamarinForms.Navigation.Android":"xamarin\Binaries\DevExpress.XamarinForms.Navigation.Android.dll",
