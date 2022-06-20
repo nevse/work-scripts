@@ -627,4 +627,5 @@ def find_maui_references_to_process(packages):
         
     return (android_references, ios_references, packages_to_remove)
 
-main()
+if __name__ == "__main__":
+    main()
