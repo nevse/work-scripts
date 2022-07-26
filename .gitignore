@@ -1,1 +1,4 @@
 .vscode
+dist
+src/conv_package/__pycache__
+src/project_conv_nevse.egg-info 
