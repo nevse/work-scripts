@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="project-conv-nevse",
-    version="0.0.13",
+    version="0.0.14",
     author="EN",
     author_email="nevse@gmail.com",
     description="csrpoj packagereference converter",

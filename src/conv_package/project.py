@@ -1,7 +1,7 @@
 import lxml
 import lxml.etree
 import os
-from package import *
+from conv_package.package import *
 from lxml.etree import XMLParser
 
 class ProjectInfo:

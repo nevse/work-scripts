@@ -2,8 +2,8 @@
 import os
 import glob
 import argparse
-from package import *
-from project import *
+from conv_package.package import *
+from conv_package.project import *
 
 def main():
     parser = argparse.ArgumentParser(description="Convert package reference to dll reference.")
