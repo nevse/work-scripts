@@ -60,6 +60,27 @@ class ProjectInfo:
             packages.append(item.get("Include"))
         return packages
 
+    def get_references(self):
+        references = dict()
+        reference_nodes = self.get_reference_nodes()
+        for item in reference_nodes:
+            group_node = item.getparent()
+            condition = group_node.get("Condition")
+            platform = None
+            if condition != None:
+                if condition.lower().find("-android") != -1:
+                    platform = "android"
+                if condition.lower().find("-ios") != -1:
+                    platform = "ios"
+            if platform not in references:
+                references[platform] = []
+            references[platform].append(item.get("Include"))
+        return references
+
+    def add_package_references(self, packages_to_add, version, platform=""):
+        for package in packages_to_add:
+            self.add_package_reference(package, version, platform)
+
     def add_package_reference(self, package, version, platform=""):
         packages = self.get_package_references()
         if package in packages:
@@ -69,8 +90,8 @@ class ProjectInfo:
         condition = f"'$(TargetFramework)' == 'net6.0-{platform}'"
         content_node = None
         if len(package_ref_nodes) != 0:
-            if platform == "":
-                content_node = package_ref_nodes[0].getparent()
+            if platform == "":                
+                content_node = next((x.getparent() for x in package_ref_nodes if self.is_no_condition(x.getparent(), condition)), None)
             else:
                 content_node = next((x.getparent() for x in package_ref_nodes if self.check_condition(x.getparent(), condition)), None)
         
@@ -84,9 +105,12 @@ class ProjectInfo:
         package_node = lxml.etree.Element("PackageReference")
         content_node.append(package_node)
         package_node.attrib["Include"] = package
-        version_node = lxml.etree.SubElement(package_node, "Version")
-        version_node.text = version
+        package_node.attrib["Version"] = version        
         print(f"Add package {package}")
+
+    def is_no_condition(self, elemnt, condition):
+        condition_attr = elemnt.attrib.get("Condition")
+        return condition_attr == None
 
     def check_condition(self, element, condition):
         condition_attr = element.attrib.get("Condition")
@@ -132,8 +156,37 @@ class ProjectInfo:
                 parent.remove(element)
                 print(f"Remove package {package_name}")
 
+    def clean_empty_groups(self):
+        item_groups = self.get_group_nodes()
+        for item_group in item_groups:
+            if len(item_group.getchildren()) == 0:
+                parent = item_group.getparent()
+                parent.remove(item_group)
+
+    def remove_references(self, references_to_remove):
+        reference_nodes = self.get_reference_nodes()
+        for element in reference_nodes:
+            reference_name = element.attrib["Include"]
+            group_node = element.getparent()
+            condition = group_node.get("Condition")
+            if "devexpress" not in reference_name.lower():
+                continue
+            for platform in references_to_remove:
+                if platform not in condition.lower():
+                    continue
+                references = references_to_remove[platform]
+                if reference_name in references:
+                    group_node.remove(element)
+                    print(f"Remove reference {reference_name}")
+
     def get_packagereference_nodes(self):
         return self.document.xpath("//ns:PackageReference", namespaces=self.msbuild_namespaces) if self.use_namespace else self.document.xpath("//PackageReference")
+
+    def get_group_nodes(self):
+        return self.document.xpath("//ns:ItemGroup", namespaces=self.msbuild_namespaces) if self.use_namespace else self.document.xpath("//ItemGroup")
+
+    def get_reference_nodes(self):
+        return self.document.xpath("//ns:Reference", namespaces=self.msbuild_namespaces) if self.use_namespace else self.document.xpath("//Reference")
 
     def get_project_node(self):
         nodes = self.document.xpath("ns:Project", namespaces=self.msbuild_namespaces) if self.use_namespace else self.document.xpath("//Project")

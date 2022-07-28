@@ -15,6 +15,9 @@ class MauiPackageInfo:
         self.android_references = dict()
         self.references = dict()
 
+    def is_maui(self):
+        return ".maui." in self.id.lower()
+
     def add_dependency(self, dependency):
         self.dependencies.append(dependency)
 
@@ -202,7 +205,7 @@ class PackageInfoBuilder:
 
 class PackageStorage:
     def __init__(self, package_info_list):
-        self.package_info_list = package_info_list       
+        self.package_info_list = package_info_list
 
     def get_package_info_list(self):
         return self.package_info_list
@@ -285,3 +288,39 @@ class PackageStorage:
             android_references.update(dependent_android_references)
             ios_references.update(dependent_ios_references)
         return (android_references, ios_references, packages_to_remove)
+
+    def get_maui_packages(self):
+        result = []
+        for package_info in self.package_info_list.values():
+            if package_info.is_maui():
+                result.append(package_info)
+        return result
+
+    def find_maui_packages(self, grouped_by_platform_rerenences):
+        maui_packages_to_process = set()
+        references_to_remove = dict()
+        references_to_remove["android"] = set()
+        references_to_remove["ios"] = set()
+        if "android" in grouped_by_platform_rerenences:
+            android_references = grouped_by_platform_rerenences["android"]
+            for package in self.get_maui_packages():
+                references = package.get_android_reference_infos()
+                for reference_info in references:
+                    if reference_info.reference in android_references:
+                        maui_packages_to_process.add(package.id)
+                        references_to_remove["android"].add(reference_info.reference)
+        if "ios" in grouped_by_platform_rerenences:
+            ios_references = grouped_by_platform_rerenences["ios"]
+            for package in self.get_maui_packages():
+                references = package.get_ios_reference_infos()
+                for reference_info in references:
+                    if reference_info.reference in ios_references:
+                        maui_packages_to_process.add(package.id)
+                        references_to_remove["ios"].add(reference_info.reference)
+        trimmed_packages = list(maui_packages_to_process)
+        for package in maui_packages_to_process:
+            dependent_packages = self.get_dependent_packages(package)
+            for dependent_package in dependent_packages:
+                if dependent_package in trimmed_packages:
+                    trimmed_packages.remove(dependent_package)
+        return (trimmed_packages, references_to_remove)

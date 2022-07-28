@@ -8,9 +8,14 @@ from conv_package.project import *
 def main():
     parser = argparse.ArgumentParser(description="Convert package reference to dll reference.")
     parser.add_argument("-w", "--workpath", dest="repo_path", default="~/work/native-mobile")
+    parser.add_argument("--reverse", dest="reverse", action="store_true", help="Convert dll reference to package reference.")
+    parser.add_argument("--version", dest="version", default="22.2.1")
     args = parser.parse_args()
 
     repo_path = args.repo_path
+    convert_to_package_references = args.reverse
+    version = args.version
+
     solution_dir = os.getcwd()
     builder = PackageInfoBuilder(f"{os.path.expanduser(repo_path)}/nuspec", f"{os.path.expanduser(repo_path)}/scripts/nuget")
     packages = builder.build_packages()
@@ -19,6 +24,9 @@ def main():
     (xamarin_project, android_project, ios_project, maui_project) = sortout_projects(proj_files)
     
     if (xamarin_project != None):
+        if convert_to_package_references:
+            print("not implemented yet!")
+            return 0
         package_references = xamarin_project.get_package_references()
         #patch common project
         print(f"Process xamarin common project {xamarin_project.proj_file_path}")
@@ -46,14 +54,24 @@ def main():
 
     if (maui_project != None):
         print("Process maui project")
-        package_references = maui_project.get_package_references()
-        (android_references, ios_references, packages_to_remove) = package_storage.find_maui_references_to_process(package_references)
-        if maui_project.has_maui_android_platform():
-            maui_project.add_references(android_references, repo_path=repo_path, platform="android")
-            maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.20.1", "android")
-        if maui_project.has_maui_ios_platform():
-            maui_project.add_references(ios_references, repo_path=repo_path, platform="ios")        
-        maui_project.remove_package_references(packages_to_remove)
+        if convert_to_package_references:
+            dll_references = maui_project.get_references()
+            (packages_to_add, references_to_remove) = package_storage.find_maui_packages(dll_references)
+            if maui_project.has_maui_android_platform():
+                maui_project.remove_references(references_to_remove)
+            maui_project.add_package_references(packages_to_add, version)
+            maui_project.remove_package_references(["Xamarin.Kotlin.StdLib"])
+            maui_project.clean_empty_groups()
+        else:
+            package_references = maui_project.get_package_references()
+            
+            (android_references, ios_references, packages_to_remove) = package_storage.find_maui_references_to_process(package_references)
+            if maui_project.has_maui_android_platform():
+                maui_project.add_references(android_references, repo_path=repo_path, platform="android")
+                maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.20.1", "android")
+            if maui_project.has_maui_ios_platform():
+                maui_project.add_references(ios_references, repo_path=repo_path, platform="ios")
+            maui_project.remove_package_references(packages_to_remove)
         maui_project.save()
 
 
