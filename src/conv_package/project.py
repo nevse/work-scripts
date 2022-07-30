@@ -3,6 +3,7 @@ import lxml.etree
 import os
 from conv_package.package import *
 from lxml.etree import XMLParser
+from pathlib import Path
 
 class ProjectInfo:
     msbuild_namespaces = {"ns":"http://schemas.microsoft.com/developer/msbuild/2003"}
@@ -11,6 +12,7 @@ class ProjectInfo:
         self.proj_file_path = proj_file_path
         parser = XMLParser(remove_blank_text=True)
         self.document = lxml.etree.parse(proj_file_path, parser)
+        self.build_props_documents = self.get_build_props(proj_file_path, parser)
         self.root = self.document.getroot()
         self.use_namespace = len(self.root.nsmap) > 0
 
@@ -23,17 +25,25 @@ class ProjectInfo:
         os.rename(self.proj_file_path, backup_path)
         self.document.write(self.proj_file_path, pretty_print=True, encoding="utf-8")
 
+    def get_build_props(self, proj_file_path, parser: XMLParser):
+        build_props = []
+        proj_dir = os.path.dirname(proj_file_path)
+        path = Path(proj_dir)
+        build_props_file_name = os.path.join(path.parent.absolute(), "Directory.Build.props")
+        build_props.append(lxml.etree.parse(build_props_file_name, parser))
+        return build_props
+
     def has_maui_android_platform(self):
-        nodes = self.document.xpath("//PropertyGroup//TargetFrameworks")
+        nodes = self.search_nodes("//PropertyGroup//TargetFrameworks")
         for node in nodes:
-            if "net6.0-android" in node.text.lower():
+            if "android" in node.text.lower():
                 return True
         return False
     
     def has_maui_ios_platform(self):
-        nodes = self.document.xpath("//PropertyGroup//TargetFrameworks")
+        nodes = self.search_nodes("//PropertyGroup//TargetFrameworks")
         for node in nodes:
-            if "net6.0-ios" in node.text.lower():
+            if "ios" in node.text.lower():
                 return True
         return False
 
@@ -50,8 +60,17 @@ class ProjectInfo:
         return len(nodes) == 1 and nodes[0].text == "netstandard2.0"
 
     def is_maui(self):
-        nodes = self.document.xpath("//PropertyGroup//UseMaui")
+        nodes = self.search_nodes("//PropertyGroup//UseMaui")
         return len(nodes) == 1 and nodes[0].text.lower() == "true"
+
+    def search_nodes(self, path):
+        result = []
+        nodes = self.document.xpath(path)
+        result.extend(nodes)
+        for build_props_document in self.build_props_documents:
+            nodes = build_props_document.xpath(path)
+            result.extend(nodes)
+        return result
 
     def get_package_references(self):
         packages = []
@@ -68,9 +87,9 @@ class ProjectInfo:
             condition = group_node.get("Condition")
             platform = None
             if condition != None:
-                if condition.lower().find("-android") != -1:
+                if condition.lower().find("android") != -1:
                     platform = "android"
-                if condition.lower().find("-ios") != -1:
+                if condition.lower().find("ios") != -1:
                     platform = "ios"
             if platform not in references:
                 references[platform] = []
@@ -87,7 +106,7 @@ class ProjectInfo:
             print(f"Skip add package {package}, reason - already exist")
             return
         package_ref_nodes = self.get_packagereference_nodes()
-        condition = f"'$(TargetFramework)' == 'net6.0-{platform}'"
+        condition = platform
         content_node = None
         if len(package_ref_nodes) != 0:
             if platform == "":                
@@ -122,7 +141,7 @@ class ProjectInfo:
         package_ref_nodes = self.get_packagereference_nodes()
         condition = None
         if platform != "":
-            condition = f"'$(TargetFramework)' == 'net6.0-{platform}'"
+            condition = platform
             item_group_node = next((x.getparent() for x in package_ref_nodes if self.check_condition(x.getparent(), condition)), None)
         else:
             item_group_node = package_ref_nodes[0].getparent() if len(package_ref_nodes) > 0 else None

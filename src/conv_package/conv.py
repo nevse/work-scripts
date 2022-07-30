@@ -57,8 +57,7 @@ def main():
         if convert_to_package_references:
             dll_references = maui_project.get_references()
             (packages_to_add, references_to_remove) = package_storage.find_maui_packages(dll_references)
-            if maui_project.has_maui_android_platform():
-                maui_project.remove_references(references_to_remove)
+            maui_project.remove_references(references_to_remove)
             maui_project.add_package_references(packages_to_add, version)
             maui_project.remove_package_references(["Xamarin.Kotlin.StdLib"])
             maui_project.clean_empty_groups()
