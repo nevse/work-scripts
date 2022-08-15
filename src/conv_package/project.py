@@ -30,6 +30,8 @@ class ProjectInfo:
         proj_dir = os.path.dirname(proj_file_path)
         path = Path(proj_dir)
         build_props_file_name = os.path.join(path.parent.absolute(), "Directory.Build.props")
+        if not os.path.exists(build_props_file_name):
+            return build_props
         build_props.append(lxml.etree.parse(build_props_file_name, parser))
         return build_props
 
