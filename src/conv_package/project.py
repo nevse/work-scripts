@@ -149,7 +149,7 @@ class ProjectInfo:
             item_group_node = package_ref_nodes[0].getparent() if len(package_ref_nodes) > 0 else None
         ref_content_node = lxml.etree.Element("ItemGroup")
         if condition != None:
-            ref_content_node.attrib["Condition"] = condition
+            ref_content_node.attrib["Condition"] = f"$(TargetFramework.Contains('-{condition}'))"
         if item_group_node == None:
             project_node = self.get_project_node()
             project_node.append(ref_content_node)
