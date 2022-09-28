@@ -68,6 +68,13 @@ def main():
             if maui_project.has_maui_android_platform():
                 maui_project.add_references(android_references, repo_path=repo_path, platform="android")
                 maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.20.1", "android")
+                grid_project_path = f"{repo_path}/xamarin/Maui/DevExpress.Maui.DataGrid/DevExpress.Maui.DataGrid.csproj"
+                if os.path.exists(grid_project_path):                    
+                    data_grid_project = ProjectInfo(grid_project_path)
+                    data_package_info = data_grid_project.find_package_reference("DevExpress.Data")
+                    if data_package_info != None:
+                        (_, data_package_version) = data_package_info
+                        maui_project.add_package_reference("DevExpress.Data", data_package_version)
             if maui_project.has_maui_ios_platform():
                 maui_project.add_references(ios_references, repo_path=repo_path, platform="ios")
             maui_project.remove_package_references(packages_to_remove)

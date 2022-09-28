@@ -81,6 +81,16 @@ class ProjectInfo:
             packages.append(item.get("Include"))
         return packages
 
+    def find_package_reference(self, package_name):
+        documents = [self.document] + self.build_props_documents
+        for document in documents:
+            package_ref_nodes = self.get_document_packagereference_nodes(document)
+            for element in package_ref_nodes:
+                if element.attrib["Include"] == package_name:
+                    return (package_name, element.attrib.get("Version"))
+        return None
+        
+
     def get_references(self):
         references = dict()
         reference_nodes = self.get_reference_nodes()
@@ -120,7 +130,7 @@ class ProjectInfo:
             project_node = self.get_project_node()
             content_node = lxml.etree.Element("ItemGroup")
             if (platform != ""):
-                content_node.attrib["Condition"] = condition
+                content_node.attrib["Condition"] = f"$(TargetFramework.Contains('-{condition}'))"
             project_node.append(content_node)
                         
         package_node = lxml.etree.Element("PackageReference")
@@ -201,7 +211,10 @@ class ProjectInfo:
                     print(f"Remove reference {reference_name}")
 
     def get_packagereference_nodes(self):
-        return self.document.xpath("//ns:PackageReference", namespaces=self.msbuild_namespaces) if self.use_namespace else self.document.xpath("//PackageReference")
+        return self.get_document_packagereference_nodes(self.document)
+
+    def get_document_packagereference_nodes(self, document):
+        return document.xpath("//ns:PackageReference", namespaces=self.msbuild_namespaces) if self.use_namespace else document.xpath("//PackageReference")
 
     def get_group_nodes(self):
         return self.document.xpath("//ns:ItemGroup", namespaces=self.msbuild_namespaces) if self.use_namespace else self.document.xpath("//ItemGroup")
