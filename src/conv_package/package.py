@@ -3,6 +3,7 @@ import lxml
 import lxml.etree
 import glob
 import json
+import os
 
 from lxml.etree import XMLParser
 class MauiPackageInfo:
@@ -17,6 +18,23 @@ class MauiPackageInfo:
 
     def is_maui(self):
         return ".maui." in self.id.lower()
+
+    def make_all_reference_paths_absolute(self, root_path):
+        for reference in self.references:
+            if not os.path.isabs(self.references[reference]):
+                self.references[reference] = self.get_absolute_path(root_path, self.references[reference])
+        for reference in self.ios_references:
+            if not os.path.isabs(self.ios_references[reference]):
+                self.ios_references[reference] = self.get_absolute_path(root_path, self.ios_references[reference])
+        for reference in self.android_references:
+            if not os.path.isabs(self.android_references[reference]):
+                self.android_references[reference] = self.get_absolute_path(root_path, self.android_references[reference])
+    
+    def get_absolute_path(self, root_path, path):
+        if os.path.isabs(path):
+            return path;
+        joined_path = os.path.join(root_path, path)
+        return os.path.abspath(joined_path)
 
     def add_dependency(self, dependency):
         self.dependencies.append(dependency)
@@ -94,9 +112,10 @@ class ReferenceInfo:
         return hash(self.reference) ^ hash(self.path)
 
 class PackageInfoBuilder:
-    def __init__(self, path_to_nuspec_files, path_to_nuget_bundle_config):
-        self.path_to_nuspec_files = path_to_nuspec_files
-        self.path_to_nuget_bundle_config = path_to_nuget_bundle_config
+    def __init__(self, repo_path, path_to_nuspec_files, path_to_nuget_bundle_config):
+        self.path_to_nuspec_files = os.path.join(repo_path, path_to_nuspec_files)
+        self.path_to_nuget_bundle_config = os.path.join(repo_path, path_to_nuget_bundle_config)
+        self.repo_path = repo_path
     
     def build_packages(self):
         packages = dict()
@@ -115,11 +134,17 @@ class PackageInfoBuilder:
                 id = bundle["id"]
                 if id == "":
                     continue
-                package = packages.get(id)
+                package = packages.get(id)                
+                if package is None:
+                    continue
                 for component in bundle["components"]:
-                   reference_path = component["source"]
-                   logical_path = self.trim_path(component["target"])
-                   package.set_reference_path(logical_path, reference_path)
+                    reference_path = os.path.join(self.repo_path, component["source"])
+                    logical_path = self.trim_path(component["target"])
+                    package.set_reference_path(logical_path, reference_path)
+        #process all reference - if they not absolute path - make them absolute
+        for package in packages.values():
+            package.make_all_reference_paths_absolute(self.path_to_nuspec_files)
+            
         return packages
 
     def trim_path(self, path):
@@ -160,17 +185,24 @@ class PackageInfoBuilder:
         for file in files:
             source = file.get("src")
             target = file.get("target").lower()
+            dll_name = os.path.basename(self.trim_path(source))
             if "ios" in target:
+                if len(ios_references) == 0 and source.endswith(".dll"):
+                    package.add_ios_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
                 for ios_reference in ios_references:
                     if ios_reference in source:
                         package.add_ios_reference(self.get_refernce_from_dll(ios_reference), self.trim_path(source))
                         break
             if "android" in target:
+                if len(ios_references) == 0 and source.endswith(".dll"):
+                    package.add_android_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
                 for android_reference in android_references:
                     if android_reference in source:
                         package.add_android_reference(self.get_refernce_from_dll(android_reference), self.trim_path(source))
                         break
             if "netstandard" in target:
+                if len(ios_references) == 0 and source.endswith(".dll"):
+                    package.add_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
                 for reference in references:
                     if reference in source:
                         package.add_reference(self.get_refernce_from_dll(reference), self.trim_path(source))
@@ -191,12 +223,17 @@ class PackageInfoBuilder:
         for file in files:
             source = file.get("src")
             target = file.get("target")
+            dll_name = os.path.basename(self.trim_path(source))
             if "ios" in target:
+                if len(ios_references) == 0 and source.endswith(".dll"):
+                    package.add_ios_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
                 for ios_reference in ios_references:
                     if ios_reference in source:
                         package.add_ios_reference(self.get_refernce_from_dll(ios_reference), self.trim_path(source))
                         break
             if "android" in target:
+                if len(android_references) == 0 and source.endswith(".dll"):
+                    package.add_android_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
                 for android_reference in android_references:
                     if android_reference in source:
                         package.add_android_reference(self.get_refernce_from_dll(android_reference), self.trim_path(source))

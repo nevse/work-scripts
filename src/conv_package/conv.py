@@ -17,7 +17,8 @@ def main():
     version = args.version
 
     solution_dir = os.getcwd()
-    builder = PackageInfoBuilder(f"{os.path.expanduser(repo_path)}/nuspec", f"{os.path.expanduser(repo_path)}/scripts/nuget")
+    full_repo_path = os.path.expanduser(repo_path)
+    builder = PackageInfoBuilder(full_repo_path, "nuspec", "scripts/nuget")
     packages = builder.build_packages()
     package_storage = PackageStorage(packages)
     proj_files = glob.glob(f"{solution_dir}/**/*.csproj", recursive=True)
@@ -67,7 +68,7 @@ def main():
             (android_references, ios_references, packages_to_remove) = package_storage.find_maui_references_to_process(package_references)
             if maui_project.has_maui_android_platform():
                 maui_project.add_references(android_references, repo_path=repo_path, platform="android")
-                maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.20.1", "android")
+                #maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.20.1", "android")
                 grid_project_path = f"{repo_path}/xamarin/Maui/DevExpress.Maui.DataGrid/DevExpress.Maui.DataGrid.csproj"
                 if os.path.exists(grid_project_path):                    
                     data_grid_project = ProjectInfo(grid_project_path)

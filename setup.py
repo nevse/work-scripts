@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="project-conv-nevse",
-    version="0.0.19",
+    version="0.0.20",
     author="EN",
     author_email="nevse@gmail.com",
     description="csrpoj packagereference converter",
@@ -18,6 +18,9 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
+    install_requires=[
+          'lxml',
+    ],
     entry_points={
         'console_scripts': [
             'conv=conv_package.conv:main',
