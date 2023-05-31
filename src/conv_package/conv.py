@@ -68,7 +68,7 @@ def main():
             package_references = maui_project.get_package_references()
             
             (android_references, ios_references, packages_to_remove) = package_storage.find_maui_references_to_process(package_references)
-            grid_project_path = f"{repo_path}/xamarin/Maui/Build.props"
+            grid_project_path = os.path.expanduser(f"{repo_path}/xamarin/Maui/Build.props")
             if os.path.exists(grid_project_path):                    
                 build_props = ProjectInfo(grid_project_path)
                 data_package_info = build_props.find_package_reference("DevExpress.Data")
