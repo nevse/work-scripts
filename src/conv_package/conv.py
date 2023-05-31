@@ -8,6 +8,7 @@ from conv_package.project import *
 def main():
     parser = argparse.ArgumentParser(description="Convert package reference to dll reference.")
     parser.add_argument("-w", "--workpath", dest="repo_path", default="~/work/native-mobile")
+    parser.add_argument("-d", "--use-dll", dest="use_dll", action="store_true", help="Convert package reference to dll reference.")
     parser.add_argument("--reverse", dest="reverse", action="store_true", help="Convert dll reference to package reference.")
     parser.add_argument("--version", dest="version", default="22.2.1")
     args = parser.parse_args()
@@ -15,6 +16,7 @@ def main():
     repo_path = args.repo_path
     convert_to_package_references = args.reverse
     version = args.version
+    use_dll = args.use_dll
 
     solution_dir = os.getcwd()
     full_repo_path = os.path.expanduser(repo_path)
@@ -66,18 +68,18 @@ def main():
             package_references = maui_project.get_package_references()
             
             (android_references, ios_references, packages_to_remove) = package_storage.find_maui_references_to_process(package_references)
+            grid_project_path = f"{repo_path}/xamarin/Maui/Build.props"
+            if os.path.exists(grid_project_path):                    
+                build_props = ProjectInfo(grid_project_path)
+                data_package_info = build_props.find_package_reference("DevExpress.Data")
+                if data_package_info != None:
+                    (_, data_package_version) = data_package_info
+                    maui_project.add_package_reference("DevExpress.Data", data_package_version)
             if maui_project.has_maui_android_platform():
-                maui_project.add_references(android_references, repo_path=repo_path, platform="android")
+                maui_project.add_references(android_references, repo_path=repo_path, platform="android", use_dll=use_dll)
                 #maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.20.1", "android")
-                grid_project_path = f"{repo_path}/xamarin/Maui/DevExpress.Maui.DataGrid/DevExpress.Maui.DataGrid.csproj"
-                if os.path.exists(grid_project_path):                    
-                    data_grid_project = ProjectInfo(grid_project_path)
-                    data_package_info = data_grid_project.find_package_reference("DevExpress.Data")
-                    if data_package_info != None:
-                        (_, data_package_version) = data_package_info
-                        maui_project.add_package_reference("DevExpress.Data", data_package_version)
             if maui_project.has_maui_ios_platform():
-                maui_project.add_references(ios_references, repo_path=repo_path, platform="ios")
+                maui_project.add_references(ios_references, repo_path=repo_path, platform="ios", use_dll=use_dll)
             maui_project.remove_package_references(packages_to_remove)
         maui_project.save()
 

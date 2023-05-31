@@ -149,7 +149,7 @@ class ProjectInfo:
             return False
         return condition_attr.replace(" ", "") == condition.replace(" ", "")
 
-    def add_references(self, references, repo_path, platform=""):
+    def add_references(self, references, repo_path, platform="", use_dll=False):
         package_ref_nodes = self.get_packagereference_nodes()
         condition = None
         if platform != "":
@@ -170,13 +170,17 @@ class ProjectInfo:
             if hint_path == None:
                 print(f"Can't find hint path for {ref}")
                 continue
-            ref_node = lxml.etree.SubElement(ref_content_node, "Reference")
-            ref_node.attrib["Include"] = ref.reference
-            hint_path_node = lxml.etree.SubElement(ref_node, "HintPath")
-            ref_abs_path = os.path.join(os.path.expanduser(repo_path), hint_path)
-            ref_rel_path = os.path.relpath(ref_abs_path, os.path.dirname(self.proj_file_path))
-            hint_path_node.text = self.patch_path(ref_rel_path)
-            print(f"Add reference {ref}")
+            ref_node = lxml.etree.SubElement(ref_content_node, "Reference" if use_dll else "ProjectReference")
+            if use_dll:
+                ref_node.attrib["Include"] = ref.reference
+                hint_path_node = lxml.etree.SubElement(ref_node, "HintPath")
+                ref_abs_path = os.path.join(os.path.expanduser(repo_path), hint_path)
+                ref_rel_path = os.path.relpath(ref_abs_path, os.path.dirname(self.proj_file_path))
+                hint_path_node.text = self.patch_path(ref_rel_path)
+                print(f"Add reference {ref.reference}")
+            else:
+                ref_node.attrib["Include"] = ref.project_path
+                print(f"Add project reference {ref.reference} - {ref.project_path}")
 
     def remove_package_references(self, packages_to_remove):
         package_ref_nodes = self.get_packagereference_nodes()

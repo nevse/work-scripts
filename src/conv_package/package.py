@@ -11,13 +11,23 @@ class MauiPackageInfo:
         self.id = id
         self.dependencies = []
         self.android_dependencies = []
-        self.ios_dependecies = []
+        self.android_project_references = dict()
+        self.ios_dependencies = []
         self.ios_references = dict()
+        self.ios_project_references = dict()
         self.android_references = dict()
         self.references = dict()
+        
 
     def is_maui(self):
         return ".maui." in self.id.lower()
+
+    def add_android_project_reference(self, android_reference, local_package_path):
+        self.android_project_references[android_reference] = local_package_path
+
+    def add_ios_project_reference(self, ios_reference, local_package_path):
+        self.ios_project_references[ios_reference] = local_package_path
+
 
     def make_all_reference_paths_absolute(self, root_path):
         for reference in self.references:
@@ -88,19 +98,20 @@ class MauiPackageInfo:
     def get_ios_reference_infos(self):
         result = []
         for reference in self.ios_references:
-            result.append(ReferenceInfo(reference, self.ios_references[reference]))
+            result.append(ReferenceInfo(reference, self.ios_references[reference], self.ios_project_references[reference]))
         return result
     
     def get_android_reference_infos(self):
         result = []
         for reference in self.android_references:
-            result.append(ReferenceInfo(reference, self.android_references[reference]))
+            result.append(ReferenceInfo(reference, self.android_references[reference], self.android_project_references[reference]))
         return result
 
 class ReferenceInfo:
-    def __init__(self, reference, path):
+    def __init__(self, reference, path, project_path):
         self.reference = reference
         self.path = path
+        self.project_path = project_path
     
     def __str__(self):
         return self.reference + " " + self.path
@@ -127,6 +138,7 @@ class PackageInfoBuilder:
                 packages[package.id] = package
         print(f"Process nuget bundle config file {self.path_to_nuget_bundle_config}")
         nuget_files = glob.glob(f"{self.path_to_nuget_bundle_config}/*.json", recursive=True)
+        project_reference_dict = self.get_reference_project_dict(os.path.join(self.repo_path, "xamarin/maui"))
         for nuget_file in nuget_files:
             with open(nuget_file) as f:
                 data = json.load(f)
@@ -144,18 +156,31 @@ class PackageInfoBuilder:
         #process all reference - if they not absolute path - make them absolute
         for package in packages.values():
             package.make_all_reference_paths_absolute(self.path_to_nuspec_files)
+            for android_reference in package.android_references:
+                if android_reference in project_reference_dict:
+                    package.add_android_project_reference(android_reference, project_reference_dict[android_reference])
+            for ios_reference in package.ios_references:
+                if ios_reference in project_reference_dict:
+                    package.add_ios_project_reference(ios_reference, project_reference_dict[ios_reference])
             
         return packages
-
+    def get_reference_project_dict(self, projects_dir):
+        result = dict()
+        projects = glob.glob(f"{projects_dir}/**/*.csproj", recursive=True)
+        for project in projects:
+            project_name = os.path.basename(project)
+            project_name = project_name.replace(".csproj", "")
+            result[project_name] = project            
+        return result
     def trim_path(self, path):
         if path.startswith(".\\"):
             path = path[2:]
-        return self.normailize_path(path)
+        return self.normalize_path(path)
 
-    def normailize_path(self, path):
+    def normalize_path(self, path):
         return path.replace("\\", "/")
 
-    def get_refernce_from_dll(self, dll_name):
+    def get_reference_from_dll(self, dll_name):
         return dll_name.replace(".dll", "")
 
     def read_nuspec_file(self, nuspec_file):
@@ -188,24 +213,24 @@ class PackageInfoBuilder:
             dll_name = os.path.basename(self.trim_path(source))
             if "ios" in target:
                 if len(ios_references) == 0 and source.endswith(".dll"):
-                    package.add_ios_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
+                    package.add_ios_reference(self.get_reference_from_dll(dll_name), self.trim_path(source))
                 for ios_reference in ios_references:
                     if ios_reference in source:
-                        package.add_ios_reference(self.get_refernce_from_dll(ios_reference), self.trim_path(source))
+                        package.add_ios_reference(self.get_reference_from_dll(ios_reference), self.trim_path(source))
                         break
             if "android" in target:
                 if len(ios_references) == 0 and source.endswith(".dll"):
-                    package.add_android_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
+                    package.add_android_reference(self.get_reference_from_dll(dll_name), self.trim_path(source))
                 for android_reference in android_references:
                     if android_reference in source:
-                        package.add_android_reference(self.get_refernce_from_dll(android_reference), self.trim_path(source))
+                        package.add_android_reference(self.get_reference_from_dll(android_reference), self.trim_path(source))
                         break
             if "netstandard" in target:
                 if len(ios_references) == 0 and source.endswith(".dll"):
-                    package.add_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
+                    package.add_reference(self.get_reference_from_dll(dll_name), self.trim_path(source))
                 for reference in references:
                     if reference in source:
-                        package.add_reference(self.get_refernce_from_dll(reference), self.trim_path(source))
+                        package.add_reference(self.get_reference_from_dll(reference), self.trim_path(source))
                         break   
         return package
 
@@ -226,17 +251,17 @@ class PackageInfoBuilder:
             dll_name = os.path.basename(self.trim_path(source))
             if "ios" in target:
                 if len(ios_references) == 0 and source.endswith(".dll"):
-                    package.add_ios_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
+                    package.add_ios_reference(self.get_reference_from_dll(dll_name), self.trim_path(source))
                 for ios_reference in ios_references:
                     if ios_reference in source:
-                        package.add_ios_reference(self.get_refernce_from_dll(ios_reference), self.trim_path(source))
+                        package.add_ios_reference(self.get_reference_from_dll(ios_reference), self.trim_path(source))
                         break
             if "android" in target:
                 if len(android_references) == 0 and source.endswith(".dll"):
-                    package.add_android_reference(self.get_refernce_from_dll(dll_name), self.trim_path(source))
+                    package.add_android_reference(self.get_reference_from_dll(dll_name), self.trim_path(source))
                 for android_reference in android_references:
                     if android_reference in source:
-                        package.add_android_reference(self.get_refernce_from_dll(android_reference), self.trim_path(source))
+                        package.add_android_reference(self.get_reference_from_dll(android_reference), self.trim_path(source))
                         break    
         return package
 
@@ -257,10 +282,10 @@ class PackageStorage:
         package_info = self.get_package_info(package_id)
         if package_info is None:
             return result
-        dependenices = package_info.get_dependencies()
-        if dependenices == None:
+        dependencies = package_info.get_dependencies()
+        if dependencies == None:
             return result
-        for dependent_package_id in dependenices:
+        for dependent_package_id in dependencies:
             result.add(dependent_package_id)
             dependent_packages = self.get_dependent_packages(dependent_package_id)
             if dependent_packages == None:
@@ -333,21 +358,21 @@ class PackageStorage:
                 result.append(package_info)
         return result
 
-    def find_maui_packages(self, grouped_by_platform_rerenences):
+    def find_maui_packages(self, grouped_by_platform_references):
         maui_packages_to_process = set()
         references_to_remove = dict()
         references_to_remove["android"] = set()
         references_to_remove["ios"] = set()
-        if "android" in grouped_by_platform_rerenences:
-            android_references = grouped_by_platform_rerenences["android"]
+        if "android" in grouped_by_platform_references:
+            android_references = grouped_by_platform_references["android"]
             for package in self.get_maui_packages():
                 references = package.get_android_reference_infos()
                 for reference_info in references:
                     if reference_info.reference in android_references:
                         maui_packages_to_process.add(package.id)
                         references_to_remove["android"].add(reference_info.reference)
-        if "ios" in grouped_by_platform_rerenences:
-            ios_references = grouped_by_platform_rerenences["ios"]
+        if "ios" in grouped_by_platform_references:
+            ios_references = grouped_by_platform_references["ios"]
             for package in self.get_maui_packages():
                 references = package.get_ios_reference_infos()
                 for reference_info in references:
