@@ -77,6 +77,22 @@ def main():
                     (_, data_package_version) = data_package_info
                     data_package_version = data_versions[0] if data_versions != None else data_package_version
                     maui_project.add_package_reference("DevExpress.Data", data_package_version)
+            if not use_dll:
+                common_references = set()
+                android_references_to_remove = set()
+                ios_references_to_remove = set()
+                for android_ref in android_references:
+                    for ios_ref in ios_references:
+                        if android_ref.project_path == ios_ref.project_path:
+                            common_references.add(android_ref)
+                            android_references_to_remove.add(android_ref)
+                            ios_references_to_remove.add(ios_ref)
+                for ref in android_references_to_remove:
+                    android_references.remove(ref)
+                for ref in ios_references_to_remove:
+                    ios_references.remove(ref)
+                maui_project.add_references(common_references, repo_path=repo_path, platform="", use_dll=False)
+            
             if maui_project.has_maui_android_platform():
                 maui_project.add_references(android_references, repo_path=repo_path, platform="android", use_dll=use_dll)
                 #maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.20.1", "android")
