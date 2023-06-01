@@ -68,12 +68,14 @@ def main():
             package_references = maui_project.get_package_references()
             
             (android_references, ios_references, packages_to_remove) = package_storage.find_maui_references_to_process(package_references)
-            grid_project_path = os.path.expanduser(f"{repo_path}/xamarin/Maui/Build.props")
-            if os.path.exists(grid_project_path):                    
-                build_props = ProjectInfo(grid_project_path)
+            build_props_path = os.path.expanduser(f"{repo_path}/xamarin/Maui/Build.props")
+            if os.path.exists(build_props_path):
+                data_versions = find_data_version(os.path.expanduser(f"{repo_path}/xamarin/Maui"))                    
+                build_props = ProjectInfo(build_props_path)
                 data_package_info = build_props.find_package_reference("DevExpress.Data")
                 if data_package_info != None:
                     (_, data_package_version) = data_package_info
+                    data_package_version = data_versions[0] if data_versions != None else data_package_version
                     maui_project.add_package_reference("DevExpress.Data", data_package_version)
             if maui_project.has_maui_android_platform():
                 maui_project.add_references(android_references, repo_path=repo_path, platform="android", use_dll=use_dll)
@@ -83,6 +85,17 @@ def main():
             maui_project.remove_package_references(packages_to_remove)
         maui_project.save()
 
+def find_data_version(maui_path):
+    data_version = None
+    if not os.path.exists(maui_path):
+        return data_version
+    proj_files = glob.glob(f"{maui_path}/**/*.csproj", recursive=True)
+    for proj_path in proj_files:
+        proj = ProjectInfo(proj_path)
+        data_version = proj.get_property("DevExpress_Data")
+        if data_version != None:
+            break
+    return data_version
 
 def sortout_projects(proj_files):
     xamarin = None

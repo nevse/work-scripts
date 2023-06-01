@@ -1,6 +1,7 @@
 import lxml
 import lxml.etree
 import os
+import re
 from conv_package.package import *
 from lxml.etree import XMLParser
 from pathlib import Path
@@ -214,6 +215,59 @@ class ProjectInfo:
                     group_node.remove(element)
                     print(f"Remove reference {reference_name}")
 
+    def get_property(self, property_name):
+        return self.get_property_matches(self.proj_file_path, property_name)
+
+    def get_property_matches(self, project_path, property_name, is_end_point=False):
+        if not os.path.exists(project_path):
+            return None
+
+        with open(project_path, 'r') as f:
+            content = f.read()
+        content = re.sub(r'<!--.*?-->', '', content, flags=re.DOTALL)
+
+        # Find in current project
+        property_match = re.findall(fr'<{property_name}\s?.*>(.*?)<\/{property_name}>\s*\n', content)
+        if len(property_match) > 0:
+            return property_match
+
+        import_regex = re.compile(r'<Import\s+Project\s*=\s*"(.+?)"')
+        # Find in imported project
+        for import_match in import_regex.finditer(content):
+            base_path = os.path.dirname(project_path)
+            imported_project_name = import_match.group(1).replace('$(MSBuildThisFileDirectory)', '')
+            imported_project_path = os.path.join(base_path, imported_project_name).replace('\\', '/')
+
+            if not os.path.exists(imported_project_path):
+                imported_project_path = import_match.group(1).replace('\\', '/')
+            if not os.path.exists(imported_project_path):
+                return None
+
+            imported_project_property_matches = self.get_property_matches(imported_project_path, property_name, is_end_point)
+            if imported_project_property_matches is not None:
+                return imported_project_property_matches
+
+        # Already at the end of the import chain
+        if is_end_point:
+            return None
+
+        # Find in Directory.Build.props
+        props_file = self.get_directory_props_path(os.path.dirname(project_path))
+        if props_file is None:
+            return None
+
+        return self.get_property_matches(props_file, property_name, True)
+    
+    def get_directory_props_path(self, workspace_path):
+        prop_files = [f for f in os.listdir(workspace_path) if f == 'Directory.Build.props']
+        if len(prop_files) > 0:
+            return os.path.join(workspace_path, prop_files[0])
+
+        parent_directory = os.path.dirname(workspace_path)
+        if parent_directory == workspace_path:
+            return None
+        return self.get_directory_props_path(parent_directory)
+    
     def get_packagereference_nodes(self):
         return self.get_document_packagereference_nodes(self.document)
 
