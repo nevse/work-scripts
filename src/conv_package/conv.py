@@ -11,12 +11,14 @@ def main():
     parser.add_argument("-d", "--use-dll", dest="use_dll", action="store_true", help="Convert package reference to dll reference.")
     parser.add_argument("--reverse", dest="reverse", action="store_true", help="Convert dll reference to package reference.")
     parser.add_argument("--version", dest="version", default="22.2.1")
+    parser.add_argument("-p", "--project-refs", dest="project_refs", action="store_true", help="Convert package reference to project reference.")
     args = parser.parse_args()
 
     repo_path = args.repo_path
     convert_to_package_references = args.reverse
     version = args.version
     use_dll = args.use_dll
+    project_refs = args.project_refs
 
     solution_dir = os.getcwd()
     full_repo_path = os.path.expanduser(repo_path)
@@ -91,8 +93,12 @@ def main():
                     android_references.remove(ref)
                 for ref in ios_references_to_remove:
                     ios_references.remove(ref)
+            if not use_dll and project_refs:
+                replace_for_project_refs_suffix(android_references)
+                replace_for_project_refs_suffix(ios_references)
+                replace_for_project_refs_suffix(common_references)
+            if not use_dll:
                 maui_project.add_references(common_references, repo_path=repo_path, platform="", use_dll=False)
-            
             if maui_project.has_maui_android_platform():
                 maui_project.add_references(android_references, repo_path=repo_path, platform="android", use_dll=use_dll)
                 #maui_project.add_package_reference("Xamarin.Kotlin.StdLib", "1.6.20.1", "android")
@@ -101,6 +107,10 @@ def main():
             maui_project.remove_package_references(packages_to_remove)
         maui_project.save()
 
+def replace_for_project_refs_suffix(references):
+    for ref in references:
+        if ref.project_path.endswith(".csproj"):
+            ref.project_path = ref.project_path[:(len(ref.project_path)-len(".csproj"))] + ".Refs.csproj"
 def find_data_version(maui_path):
     data_version = None
     if not os.path.exists(maui_path):
